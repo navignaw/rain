@@ -12,6 +12,7 @@ const ACCESS_TOKEN = process.env.FB_PAGE_ACCESS_TOKEN;
 const ADMIN = process.env.FB_ADMIN;
 const REQUEST_URI = 'https://graph.facebook.com/v2.6/me/messages';
 
+let RUNNING_EVENTS = {};
 let TESTING = false;
 
 app.set('port', (process.env.PORT || 5000));
@@ -78,11 +79,21 @@ function receivedMessage(event) {
     return;
   }
 
+  // Check if we are already processing an event to avoid duplicate messages.
+  if (RUNNING_EVENTS[senderId]) {
+    return;
+  }
+
+  // Run the events in sequence.
+  RUNNING_EVENTS[senderId] = true;
   let progress = GameData.getProgress(senderId);
   let responses = Story.getResponse(progress, message);
   let result = Promise.resolve();
   responses.forEach((response) => {
     result = result.then(() => executeResponse(senderId, response));
+  });
+  result.then(() => {
+    RUNNING_EVENTS[senderId] = false;
   });
 }
 
@@ -91,7 +102,7 @@ function receivedMessage(event) {
  * Debug for admin only. Returns true if debug, false otherwise.
  */
 function tryDebugMessage(message) {
-  if (message == 'RESET') {
+  if (message.text == 'RESET') {
     GameData.resetProgress(ADMIN);
     return true;
   }
