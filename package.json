@@ -1,0 +1,23 @@
+{
+  "name": "rain",
+  "version": "0.0.1",
+  "description": "my name is rain.",
+  "main": "js/app.js",
+  "scripts": {
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/navignaw/rain.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/navignaw/rain/issues"
+  },
+  "homepage": "https://github.com/navignaw/rain#readme",
+  "dependencies": {
+    "body-parser": "^1.17.1",
+    "express": "^4.15.2",
+    "request": "^2.81.0"
+  }
+}
