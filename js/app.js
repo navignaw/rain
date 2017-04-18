@@ -38,8 +38,8 @@ app.get('/test', (req, res) => {
 });
 
 // Read and response to requests.
-app.get('/webhook/', (req, res) => {
-const data = req.body;
+app.post('/webhook/', (req, res) => {
+  const data = req.body;
 
   // Make sure this is a page subscription
   if (data.object == 'page') {
