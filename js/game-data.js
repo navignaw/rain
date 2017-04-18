@@ -38,6 +38,14 @@ class GameData {
     progress.sanity += sanity;
     console.log('new progress', this.gameData_[playerId]);
   }
+
+  /**
+   * Reset player progress. No undo!
+   */
+  resetProgress(playerId) {
+    this.gameData_[playerId] = new Progress();
+    console.log('progress reset for', this.gameData_[playerId]);
+  }
 }
 
 module.exports = new GameData();

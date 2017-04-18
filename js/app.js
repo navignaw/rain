@@ -9,6 +9,7 @@ const GameData = require('./game-data.js');
 const Story = require('./story.js');
 
 const ACCESS_TOKEN = process.env.FB_PAGE_ACCESS_TOKEN;
+const ADMIN = process.env.FB_ADMIN;
 const REQUEST_URI = 'https://graph.facebook.com/v2.6/me/messages';
 
 let TESTING = false;
@@ -52,6 +53,7 @@ app.post('/webhook/', (req, res) => {
         if (messagingEvent.message) {
           receivedMessage(messagingEvent);
         }
+        return;  // For now, stop processing future messages.
       });
     });
   }
@@ -72,6 +74,10 @@ function receivedMessage(event) {
     senderId, recipientId, timeOfMessage);
   console.log(JSON.stringify(message));
 
+  if (senderId == ADMIN && tryDebugMessage(message)) {
+    return;
+  }
+
   let progress = GameData.getProgress(senderId);
   let responses = Story.getResponse(progress, message);
   let result = Promise.resolve();
@@ -82,13 +88,25 @@ function receivedMessage(event) {
 
 
 /**
+ * Debug for admin only. Returns true if debug, false otherwise.
+ */
+function tryDebugMessage(message) {
+  if (message == 'RESET') {
+    GameData.resetProgress(ADMIN);
+    return true;
+  }
+  return false;
+}
+
+
+/**
  * Creates and sends a JSON message with the appropriate action or delay.
  */
 function executeResponse(playerId, response) {
   if (response.MESSAGE) {
     callSendAPI(getTextTemplate(playerId, response.MESSAGE));
   } else if (response.TYPING) {
-    callSendAPI(getSenderActionTemplate(playerId, 'typing_' + response.TYPING ? 'on' : 'off'));
+    callSendAPI(getSenderActionTemplate(playerId, 'typing_' + (response.TYPING ? 'on' : 'off')));
   }
 
   if (response.PROGRESS) {
